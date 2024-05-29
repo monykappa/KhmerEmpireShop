@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}
+    Order Detail - {{ order.id }}
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <h1>Order Number - {{ order.id }}</h1>
+    <p><strong>Order Date:</strong> {{ order.ordered_date }}</p>
+    
+    <h2>Products Ordered:</h2>
+    <ul>
+        {% for item in order.orderhistoryitem_set.all %}
+        <li>
+            <strong>Product:</strong> {{ item.product.name }} - {{ item.product.model }} - {{ item.product.year }}<br>
+            <strong>Quantity:</strong> {{ item.quantity }}<br>
+        </li>
+        {% endfor %}
+    </ul>
+    <p><strong>Total Price:</strong> ${{ order.total_price }}</p>
+
+</div>
+{% endblock content %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}
+    Profile
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <h1>Profile</h1>
+    <p>Name: {{ user.username }}</p>
+    <!-- Add more profile information here if needed -->
+
+    <a href="{% url 'home:order_history' %}" class="btn btn-primary">Order History</a>
+</div>
+{% endblock content %}
