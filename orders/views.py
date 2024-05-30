@@ -14,6 +14,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
 from userprofile.models import UserProfile
+from userprofile.forms import *
 # Create your views here.
 
 
@@ -125,8 +126,6 @@ def pay_with_paypal(request):
 
 
 
-
-@login_required
 @login_required
 def confirm_address(request):
     # Check if the user has items in their cart
@@ -142,35 +141,17 @@ def confirm_address(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
-        # Get the data from the form
-        address1 = request.POST.get('address1')
-        address2 = request.POST.get('address2')
-        city = request.POST.get('city')
-        state = request.POST.get('state')
-        country = request.POST.get('country')
-        zipcode = request.POST.get('zipcode')
-        phone = request.POST.get('phone')
+        form = UserProfileForm(request.POST, instance=user_profile)
+        if form.is_valid():
+            user_profile = form.save(commit=False)
+            user_profile.address_confirmed = True
+            user_profile.save()
+            # Redirect the user to the PayPal payment view
+            return redirect('orders:pay_with_paypal')  # Replace with the actual URL or URL name
+    else:
+        form = UserProfileForm(instance=user_profile)
 
-        # Update the user's profile
-        user_profile.address1 = address1
-        user_profile.address2 = address2
-        user_profile.city = city
-        user_profile.state = state
-        user_profile.country = country
-        user_profile.zipcode = zipcode
-        user_profile.phone = phone
-        user_profile.save()
-
-        # Set the address_confirmed attribute to True
-        user_profile.address_confirmed = True
-        user_profile.save()
-
-        # Redirect the user to the PayPal payment view
-        return redirect('orders:pay_with_paypal')  # Replace with the actual URL or URL name
-
-    # Render the form for the user
-    return render(request, 'confirm/confirm_address.html', {'user_profile': user_profile})
-
+    return render(request, 'confirm/confirm_address.html', {'form': form})
 
 
     

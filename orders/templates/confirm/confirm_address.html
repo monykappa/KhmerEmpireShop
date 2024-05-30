@@ -1,39 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-5">
     <form method="post">
         {% csrf_token %}
-        <div class="form-group">
-            <label for="address1">Address line 1</label>
-            <input type="text" class="form-control" id="address1" name="address1" value="{{ user_profile.address1 }}">
-        </div>
-        <div class="form-group">
-            <label for="address2">Address line 2</label>
-            <input type="text" class="form-control" id="address2" name="address2" value="{{ user_profile.address2 }}">
-        </div>
-        <div class="form-group">
-            <label for="city">City</label>
-            <input type="text" class="form-control" id="city" name="city" value="{{ user_profile.city }}">
-        </div>
-        <div class="form-group">
-            <label for="state">State</label>
-            <input type="text" class="form-control" id="state" name="state" value="{{ user_profile.state }}">
-        </div>
-        <div class="form-group">
-            <label for="country">Country</label>
-            <input type="text" class="form-control" id="country" name="country" value="{{ user_profile.country }}">
-        </div>
-        <div class="form-group">
-            <label for="zipcode">Zip code</label>
-            <input type="text" class="form-control" id="zipcode" name="zipcode" value="{{ user_profile.zipcode }}">
-        </div>
-        <div class="form-group">
-            <label for="phone">Phone number</label>
-            <input type="text" class="form-control" id="phone" name="phone" value="{{ user_profile.phone }}">
-        </div>
+        {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Confirm Address</button>
     </form>
 </div>
-
-{% endblock content %}
+{% endblock %}
