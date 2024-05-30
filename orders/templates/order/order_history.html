@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}
-    Order History
+Order History
 {% endblock title %}
 
 {% block content %}
@@ -13,6 +13,14 @@
             <strong>Order Number:</strong> {{ order.id }}<br>
             <strong>Order Date:</strong> {{ order.ordered_date }}<br>
             <strong>Total Price:</strong> ${{ order.total_price }}<br>
+            {% if order.status == 'Pending' %}
+            <p><strong>Status:</strong> <span style="color: orange;">{{ order.status }}</span></p>
+            {% elif order.status == 'Completed' %}
+            <p><strong>Status:</strong> <span style="color: green;">{{ order.status }}</span></p>
+            {% elif order.status == 'Cancelled' %}
+            <p><strong>Status:</strong> <span style="color: red;">{{ order.status }}</span></p>
+            {% endif %}
+
             <a href="{% url 'orders:order_detail' order_id=order.id %}">View Details</a><br>
         </li>
         {% endfor %}

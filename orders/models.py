@@ -2,10 +2,16 @@ from django.db import models
 from products.models import *
 # Create your models here.
 
+class OrderStatus(models.TextChoices):
+    PENDING = 'Pending', 'Pending'
+    COMPLETED = 'Completed', 'Completed'
+    CANCELLED = 'Cancelled', 'Cancelled'
+
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    # status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)
 
     def __str__(self):
         return f"Order #{self.id} - Total: ${self.total_price:.2f}"
@@ -30,9 +36,11 @@ class OrderHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ordered_date = models.DateTimeField(default=timezone.now)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)  
 
     def __str__(self):
         return f"Order History #{self.id} - {self.ordered_date} - Total: ${self.total_price:.2f}"
+
 
 class OrderHistoryItem(models.Model):
     order_history = models.ForeignKey(OrderHistory, on_delete=models.CASCADE)

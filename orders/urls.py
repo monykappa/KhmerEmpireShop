@@ -19,6 +19,11 @@ urlpatterns = [
     path('order-history/', views.OrderHistoryView.as_view(), name='order_history'),
     path('order-history/<int:order_id>/', views.OrderDetailView.as_view(), name='order_detail'),
     
+    # path('save-address/', views.SaveAddressView.as_view(), name='save_address'),  # Define the URL pattern for save_address
+    # path('confirm-address/', views.ConfirmAddressView.as_view(), name='confirm_address'),
+    path('confirm-address/', views.confirm_address, name='confirm_address'),
+    path('pay-with-paypal/', views.pay_with_paypal, name='pay_with_paypal'),
+    
     path('paypal/', include('paypal.standard.ipn.urls')),
     
 ]

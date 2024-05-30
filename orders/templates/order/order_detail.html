@@ -5,15 +5,24 @@
 
 {% block content %}
 <div class="container">
-    <h1>Order Number - {{ order.id }}</h1>
-    <p><strong>Order Date:</strong> {{ order.ordered_date }}</p>
+    <h1>Order N.O #{{ order.id }}</h1>
+    <p><strong>Ordered Date:</strong> {{ order.ordered_date }}</p>
+    {% if order.status == 'Pending' %}
+    <p><strong>Status:</strong> <span style="color: orange;">{{ order.status }}</span></p>
+    {% elif order.status == 'Completed' %}
+    <p><strong>Status:</strong> <span style="color: green;">{{ order.status }}</span></p>
+    {% elif order.status == 'Cancelled' %}
+    <p><strong>Status:</strong> <span style="color: red;">{{ order.status }}</span></p>
+    {% endif %}
     
     <h2>Products Ordered:</h2>
     <ul>
         {% for item in order.orderhistoryitem_set.all %}
         <li>
+            <img src="{{ item.product.images.url }}" alt="{{ item.product.name }}" width="120" /> <br>
             <strong>Product:</strong> {{ item.product.name }} - {{ item.product.model }} - {{ item.product.year }}<br>
             <strong>Quantity:</strong> {{ item.quantity }}<br>
+            <p><strong>Price</strong>: ${{ item.subtotal }}</p>
         </li>
         {% endfor %}
     </ul>
