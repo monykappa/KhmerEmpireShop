@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'orders',
     'userprofile',
     
+    
+    "django.contrib.sites",
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -71,6 +73,7 @@ SOCIALACCOUNT_EMAIL_VERIFICATION=True
 SOCIALACCOUNT_EMAIL_REQUIRED=True
 
 SITE_ID = 1
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -174,6 +177,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 
 PAYPAL_RECEIVER_EMAIL = 'sb-amy1d29165459@personal.example.com'

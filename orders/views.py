@@ -17,29 +17,42 @@ from django.views.generic import DetailView
 # Create your views here.
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 @method_decorator(login_required, name='dispatch')
 class AddToCartView(View):
     def post(self, request, slug):
         try:
+            logger.debug("AddToCartView post method called")
             product = get_object_or_404(Product, slug=slug)
-            order, created = Order.objects.get_or_create(user=request.user, created_at__isnull=False, defaults={'payment_method': 'PayPal'})
+            logger.debug(f"Product found: {product}")
             
-            quantity = int(request.POST.get('quantity', 1))  # Get quantity from form, default to 1 if not provided
+            order, created = Order.objects.get_or_create(user=request.user, created_at__isnull=False)
+            logger.debug(f"Order found or created: {order}, created: {created}")
+            
+            quantity = int(request.POST.get('quantity', 1))
+            logger.debug(f"Quantity from form: {quantity}")
             
             cart_item, created = CartItem.objects.get_or_create(order=order, product=product)
             if not created:
-                cart_item.quantity += quantity  # Add the specified quantity
+                cart_item.quantity += quantity
+                logger.debug(f"Updated cart item quantity: {cart_item.quantity}")
             else:
-                cart_item.quantity = quantity  # Set the specified quantity if item is newly created
+                cart_item.quantity = quantity
+                logger.debug(f"New cart item quantity: {cart_item.quantity}")
             cart_item.save()
 
-            return HttpResponse(status=204)  # No Content
+            return HttpResponse(status=204)
             
         except Exception as e:
-            return JsonResponse({'message': str(e)}, status=500)
+            logger.error(f"Error adding product to cart: {str(e)}", exc_info=True)
+            return JsonResponse({'message': f"Error: {str(e)}"}, status=500)
     
     def get(self, request, slug):
-        return JsonResponse({'message': 'Invalid request'}, status=400)
+        return JsonResponse({'message': 'Invalid request method'}, status=400)
+
 
 class CartDetailView(TemplateView):
     def get_template_names(self):

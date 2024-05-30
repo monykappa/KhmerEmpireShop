@@ -1,4 +1,3 @@
-
 $(document).ready(function () {
     $('#add-to-cart-form').on('submit', function (event) {
         event.preventDefault();
@@ -6,6 +5,14 @@ $(document).ready(function () {
         var $form = $(this);
         var url = $form.attr('action');
         var data = $form.serialize();
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                }
+            }
+        });
 
         $.ajax({
             type: 'POST',
