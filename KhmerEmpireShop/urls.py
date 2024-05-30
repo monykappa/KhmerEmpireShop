@@ -12,7 +12,7 @@ urlpatterns = [
     path('', include('orders.urls')),
     
     
-    # path('accounts/', include('allauth.urls')),
+    path('accounts/', include('allauth.urls')),
     
     
 ]
