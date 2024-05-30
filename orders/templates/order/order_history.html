@@ -13,7 +13,7 @@
             <strong>Order Number:</strong> {{ order.id }}<br>
             <strong>Order Date:</strong> {{ order.ordered_date }}<br>
             <strong>Total Price:</strong> ${{ order.total_price }}<br>
-            <a href="{% url 'home:order_detail' order_id=order.id %}">View Details</a><br>
+            <a href="{% url 'orders:order_detail' order_id=order.id %}">View Details</a><br>
         </li>
         {% endfor %}
     </ul>

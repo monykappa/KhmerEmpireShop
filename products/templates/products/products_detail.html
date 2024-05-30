@@ -38,7 +38,7 @@ Product Details
     <p><strong>Operating System:</strong> {{ laptop_spec.operating_system.operating_system }} </p>
     <p><strong>Weight:</strong> {{ laptop_spec.weight }} kg</p>
 
-    <form id="add-to-cart-form" action="{% url 'home:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
+    <form id="add-to-cart-form" action="{% url 'orders:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
         {% csrf_token %}
         <div class="form-group">
             <label for="quantity">Quantity:</label>

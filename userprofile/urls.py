@@ -8,11 +8,16 @@ from django.shortcuts import render
 from . import views
 from django.conf import settings
 
-app_name = 'products'
+app_name = 'userprofile'
 
 urlpatterns = [
-    path('products/', views.ProductListView.as_view(), name='product_list'),
-    path('products/<slug:slug>/', views.ProductDetailView.as_view(), name='product_detail'),
+    # Authentication
+    path('sign-in/', views.SignInView.as_view(), name='sign_in'),
+    path('logout/', views. LogoutView.as_view(), name='logout'),
+    
+    # Profile
+    path('profile/', views.ProfileView.as_view(), name='profile'),
+    
     
 ]
 

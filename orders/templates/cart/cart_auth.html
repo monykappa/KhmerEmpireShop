@@ -66,7 +66,7 @@ Cart
     var total = '{{ total_price }}'
     var productId = '{{ CartItem.id }}'
     function completeOrder() {
-        var url = "{% url 'home:payment_complete' %}"
+        var url = "{% url 'orders:payment_complete' %}"
 
         fetch(url, {
             method: 'POST',
@@ -108,7 +108,7 @@ Cart
                     .then(res => {
                         if (res.ok) {
                             // Redirect inside this callback
-                            window.location.href = "{% url 'home:payment_complete' %}";
+                            window.location.href = "{% url 'orders:payment_complete' %}";
                         }
                     });
             });

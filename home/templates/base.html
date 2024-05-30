@@ -65,7 +65,7 @@
                         </a>
                     </li>
                     <li class="nav-item menu">
-                        <a class="nav-link" href="{% url 'home:product_list' %}">Product</a>
+                        <a class="nav-link" href="{% url 'products:product_list' %}">Product</a>
                     </li>
 
                     <li class="nav-item menu">
@@ -75,19 +75,19 @@
                         <a class="nav-link about-us" href="">About us</a>
                     </li>
                     <li class="nav cart">
-                        <a class="nav-link" href="{% url 'home:cart_detail' %}"><i
+                        <a class="nav-link" href="{% url 'orders:cart_detail' %}"><i
                                 class="fa-solid fa-cart-shopping"></i></a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item menu">
-                        <a class="nav-link user" href="{% url 'home:profile' %}">{{ user.username }}</a>
+                        <a class="nav-link user" href="{% url 'userprofile:profile' %}">{{ user.username }}</a>
                     </li>
                     <li class="nav-item menu">
-                        <a class="nav-link" href="{% url 'home:logout' %}">Logout</a>
+                        <a class="nav-link" href="{% url 'userprofile:logout' %}">Logout</a>
                     </li>
                     {% else %}
                     <li class="nav-item menu">
-                        <a class="nav-link nav-sign-in" href="{% url 'home:sign_in' %}">Sign In</a>
+                        <a class="nav-link nav-sign-in" href="{% url 'userprofile:sign_in' %}">Sign In</a>
                     </li>
                     <li class="nav-item menu">
                         <a class="nav-link  nav-sign-up" href="">Sign Up</a>

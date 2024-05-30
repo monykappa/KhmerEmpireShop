@@ -33,7 +33,7 @@
                 <p><strong>Memory:</strong> {{ laptop_spec.memory.capacity }}GB</p>
                 <p><strong>Year:</strong> {{ laptop_spec.product.year }}</p>
                 <p><strong>Price</strong>${{ laptop_spec.product.price }}</p>
-                <a href="{% url 'home:product_detail' laptop_spec.slug %}" class="btn btn-primary">See More</a>
+                <a href="{% url 'products:product_detail' laptop_spec.slug %}" class="btn btn-primary">See More</a>
 
             </div>
         </div>
