@@ -1,9 +1,9 @@
 from django import forms
-from .models import CAMBODIAN_PROVINCES, UserProfile
+from .models import *
 
-class UserProfileForm(forms.ModelForm):
+class AddressForm(forms.ModelForm):
     class Meta:
-        model = UserProfile
+        model = Address
         fields = ['address1', 'address2', 'city', 'province', 'phone']
         widgets = {
             'address1': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),

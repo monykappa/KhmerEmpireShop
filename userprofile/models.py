@@ -32,7 +32,7 @@ CAMBODIAN_PROVINCES = [
     ('Tboung Khmum', 'Tboung Khmum'),
 ]
 
-class UserProfile(models.Model):
+class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address1 = models.CharField(max_length=100, null=True)
     address2 = models.CharField(max_length=100, null=True, blank=True)
@@ -42,7 +42,18 @@ class UserProfile(models.Model):
     address_confirmed = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.address1}, {self.city}, {self.province}, {self.zipcode}"
+        return f"{self.address1}, {self.city}, {self.province}"
 
     class Meta:
         verbose_name_plural = "Addresses"
+
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    pfp = models.ImageField(upload_to='profile_pics', blank=True, null=True)
+
+    def __str__(self):
+        return self.user.username
+
+

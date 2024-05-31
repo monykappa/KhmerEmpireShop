@@ -88,7 +88,7 @@
         <p>Products Purchased:</p>
         <ul>
             {% for item in order_history_items %}
-            <li>{{ item.product.name }} - ${{ item.subtotal }} - Quantity: {{ item.quantity }}</li>
+            <li>{{ item.product.name }} {{ item.product.model }} {{ item.product.year }} - Quantity: {{ item.quantity }} - ${{ item.subtotal }}USD</li>
             {% endfor %}
         </ul>
 

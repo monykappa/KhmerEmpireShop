@@ -13,6 +13,10 @@ app_name = 'userprofile'
 urlpatterns = [
     # Authentication
     path('sign-in/', views.SignInView.as_view(), name='sign_in'),
+    path('signup/', views.signup, name='signup'),
+    path('check-username/', views.check_username_availability, name='check_username_availability'),
+    path('check-email/', views.check_email_availability, name='check_email_availability'),
+    
     path('logout/', views. LogoutView.as_view(), name='logout'),
     
     # Profile

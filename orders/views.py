@@ -13,7 +13,7 @@ from orders.models import *
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
-from userprofile.models import UserProfile
+from userprofile.models import *
 from userprofile.forms import *
 from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont
@@ -141,7 +141,7 @@ class UpdateCartQuantityView(View):
 
 @login_required
 def pay_with_paypal(request):
-    user_profile = get_object_or_404(UserProfile, user=request.user)
+    user_profile = get_object_or_404(Address, user=request.user)
 
     # Check if the user has confirmed their address
     if not user_profile.address_confirmed:
@@ -189,10 +189,10 @@ def confirm_address(request):
     except Order.DoesNotExist:
         pass  # Handle the case where the order doesn't exist if needed
 
-    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    user_profile, created = Address.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        form = UserProfileForm(request.POST, instance=user_profile)
+        form = AddressForm(request.POST, instance=user_profile)
         if form.is_valid():
             user_profile = form.save(commit=False)
             user_profile.address_confirmed = True
@@ -202,7 +202,7 @@ def confirm_address(request):
                 "orders:pay_with_paypal"
             )  # Replace with the actual URL or URL name
     else:
-        form = UserProfileForm(instance=user_profile)
+        form = AddressForm(instance=user_profile)
 
     return render(request, "confirm/confirm_address.html", {"form": form})
 
@@ -297,7 +297,7 @@ class OrderHistoryImageView(View):
     def dispatch(self, request, *args, **kwargs):
         # Check if the user is authenticated
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("You must be logged in to access this page.")
+            return render(request, "unauthorize/unauthorized_access.html") 
         
         # Get the order history object
         order_history = get_object_or_404(OrderHistory, id=self.kwargs['order_history_id'])
