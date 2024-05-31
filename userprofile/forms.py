@@ -20,3 +20,4 @@ class AddressForm(forms.ModelForm):
             if not cleaned_data.get(field):
                 self.add_error(field, 'This field is required.')
         return cleaned_data
+

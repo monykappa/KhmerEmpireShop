@@ -17,6 +17,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import *
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages 
+from .forms import *
+from django.urls import reverse_lazy
 
 # Create your views here.
 
@@ -32,9 +34,9 @@ class SignInView(View):
         
         if user is not None:
             login(request, user)
-            return redirect('home:home_auth') 
+            return redirect('home:home_auth')
         else:
-            return HttpResponse("Invalid login credentials. Please try again.")
+            return redirect(f"{reverse('userprofile:sign_in')}?error=1")
         
 
 
@@ -89,6 +91,8 @@ def check_email_availability(request):
     }
     return JsonResponse(data)
 
+
+    
 class LogoutView(View):
     def get(self, request):
         logout(request)

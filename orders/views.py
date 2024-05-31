@@ -266,16 +266,17 @@ class PaymentCompleteView(TemplateView):
 
 
 
-
 class OrderHistoryView(LoginRequiredMixin, ListView):
     template_name = "order/order_history.html"
     model = OrderHistory
     context_object_name = "orders"
 
-    def get_queryset(self):
-        return OrderHistory.objects.filter(user=self.request.user).order_by(
-            "-ordered_date"
-        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pending_orders'] = OrderHistory.objects.filter(user=self.request.user, status='Pending').order_by('-ordered_date')
+        context['completed_orders'] = OrderHistory.objects.filter(user=self.request.user, status='Completed').order_by('-ordered_date')
+        context['cancelled_orders'] = OrderHistory.objects.filter(user=self.request.user, status='Cancelled').order_by('-ordered_date')
+        return context
 
 class OrderDetailView(LoginRequiredMixin, DetailView):
     template_name = "order/order_detail.html"
@@ -292,6 +293,12 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             return render(request, "unauthorize/unauthorized_access.html")  # Render unauthorized access template
         
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order = self.get_object()
+        context["qr_code_url"] = order.qr_code.url if order.qr_code else None
+        return context
 
 class OrderHistoryImageView(View):
     def dispatch(self, request, *args, **kwargs):
