@@ -1,5 +1,5 @@
 from multiprocessing import AuthenticationError
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
@@ -20,6 +20,7 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from django.utils import timezone
 import pytz
+from django.urls import reverse_lazy
 
 # Create your views here.
 
@@ -67,45 +68,76 @@ class AddToCartView(View):
 
 
 class CartDetailView(TemplateView):
-    def get_template_names(self):
-        if self.request.user.is_authenticated:
-            return ["cart/cart_auth.html"]
-        else:
-            return ["cart/cart.html"]
+    template_name = "cart/cart_auth.html"
 
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
             try:
-                order = Order.objects.get(user=request.user, created_at__isnull=False)
+                order = Order.objects.get(user=self.request.user, created_at__isnull=False)
                 cart_items = order.cartitem_set.all()
                 total_price = order.total_price
 
                 # Check if the user has provided an address
                 user_has_address = (
-                    hasattr(request.user, "userprofile")
-                    and request.user.userprofile.address1 is not None
+                    hasattr(self.request.user, "userprofile")
+                    and self.request.user.userprofile.address1 is not None
                 )
             except Order.DoesNotExist:
                 cart_items = []
                 total_price = 0
                 user_has_address = False
 
-            context = {
+            context.update({
                 "cart_items": cart_items,
                 "total_price": total_price,
                 "user_authenticated": True,
                 "user_has_address": user_has_address,  # Pass this variable to the template
-            }
+            })
         else:
-            context = {
+            context.update({
                 "cart_items": [],
                 "total_price": 0,
                 "user_authenticated": False,
                 "message": "You need to sign in to purchase items.",
-            }
+            })
+        return context
 
-        return self.render_to_response(context)
+class RemoveFromCartView(DeleteView):
+    model = CartItem
+    success_url = reverse_lazy('orders:cart_detail')
 
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        order = self.object.order
+        self.object.delete()
+        
+        # Recalculate the total price after removing the item
+        order_items = order.cartitem_set.all()
+        order.total_price = sum(item.subtotal for item in order_items)
+        order.save()
+        
+        return JsonResponse({'success': True})
+
+class UpdateCartQuantityView(View):
+    def post(self, request, item_id):
+        cart_item = get_object_or_404(CartItem, id=item_id)
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity > 0:
+            cart_item.quantity = quantity
+            cart_item.save()
+            order = cart_item.order
+            order_items = order.cartitem_set.all()
+            order.total_price = sum(item.subtotal for item in order_items)
+            order.save()
+            return JsonResponse({
+                'item_id': cart_item.id,
+                'quantity': cart_item.quantity,
+                'subtotal': float(cart_item.subtotal),
+                'total_price': float(order.total_price),
+            })
+        else:
+            return JsonResponse({'error': 'Invalid quantity'}, status=400)
 
 @login_required
 def pay_with_paypal(request):

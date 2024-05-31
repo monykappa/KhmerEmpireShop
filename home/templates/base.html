@@ -17,7 +17,7 @@
         integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{% static 'css/home/base.css' %}">
-    {% block extra_css %}{% endblock %}
+    {% block css %}{% endblock %}
     <title>{% block title %}Home{% endblock %}</title>
     
     <script src="{% static 'js/bootstrap/jquery-3.6.0.min.js' %}"></script>
@@ -25,6 +25,7 @@
     <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/sweetalert/sweetalert2@11.js' %}"></script>
     <script src="{% static 'js/carts/addToCart.js' %}"></script>
+    <script src="{% static 'js/carts/cartAuth.js' %}"></script>
 
 
 </head>
