@@ -16,6 +16,10 @@ urlpatterns = [
     path('clear-cart/', views.ClearCartView.as_view(), name='clear_cart'),
     path('payment_complete/', views.PaymentCompleteView.as_view(), name='payment_complete'),
     
+    
+    path('order-history-image/<int:order_history_id>/', views.order_history_image, name='order_history_image'),
+
+    
     path('order-history/', views.OrderHistoryView.as_view(), name='order_history'),
     path('order-history/<int:order_id>/', views.OrderDetailView.as_view(), name='order_detail'),
     

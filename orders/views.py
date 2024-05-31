@@ -15,6 +15,12 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
 from userprofile.models import UserProfile
 from userprofile.forms import *
+from django.http import HttpResponse
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+from django.utils import timezone
+import pytz
+
 # Create your views here.
 
 
@@ -22,21 +28,26 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-@method_decorator(login_required, name='dispatch')
+
+@method_decorator(login_required, name="dispatch")
 class AddToCartView(View):
     def post(self, request, slug):
         try:
             logger.debug("AddToCartView post method called")
             product = get_object_or_404(Product, slug=slug)
             logger.debug(f"Product found: {product}")
-            
-            order, created = Order.objects.get_or_create(user=request.user, created_at__isnull=False)
+
+            order, created = Order.objects.get_or_create(
+                user=request.user, created_at__isnull=False
+            )
             logger.debug(f"Order found or created: {order}, created: {created}")
-            
-            quantity = int(request.POST.get('quantity', 1))
+
+            quantity = int(request.POST.get("quantity", 1))
             logger.debug(f"Quantity from form: {quantity}")
-            
-            cart_item, created = CartItem.objects.get_or_create(order=order, product=product)
+
+            cart_item, created = CartItem.objects.get_or_create(
+                order=order, product=product
+            )
             if not created:
                 cart_item.quantity += quantity
                 logger.debug(f"Updated cart item quantity: {cart_item.quantity}")
@@ -46,22 +57,21 @@ class AddToCartView(View):
             cart_item.save()
 
             return HttpResponse(status=204)
-            
+
         except Exception as e:
             logger.error(f"Error adding product to cart: {str(e)}", exc_info=True)
-            return JsonResponse({'message': f"Error: {str(e)}"}, status=500)
-    
-    def get(self, request, slug):
-        return JsonResponse({'message': 'Invalid request method'}, status=400)
+            return JsonResponse({"message": f"Error: {str(e)}"}, status=500)
 
+    def get(self, request, slug):
+        return JsonResponse({"message": "Invalid request method"}, status=400)
 
 
 class CartDetailView(TemplateView):
     def get_template_names(self):
         if self.request.user.is_authenticated:
-            return ['cart/cart_auth.html']
+            return ["cart/cart_auth.html"]
         else:
-            return ['cart/cart.html']
+            return ["cart/cart.html"]
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -71,28 +81,30 @@ class CartDetailView(TemplateView):
                 total_price = order.total_price
 
                 # Check if the user has provided an address
-                user_has_address = hasattr(request.user, 'userprofile') and request.user.userprofile.address1 is not None
+                user_has_address = (
+                    hasattr(request.user, "userprofile")
+                    and request.user.userprofile.address1 is not None
+                )
             except Order.DoesNotExist:
                 cart_items = []
                 total_price = 0
                 user_has_address = False
-            
+
             context = {
-                'cart_items': cart_items,
-                'total_price': total_price,
-                'user_authenticated': True,
-                'user_has_address': user_has_address  # Pass this variable to the template
+                "cart_items": cart_items,
+                "total_price": total_price,
+                "user_authenticated": True,
+                "user_has_address": user_has_address,  # Pass this variable to the template
             }
         else:
             context = {
-                'cart_items': [],
-                'total_price': 0,
-                'user_authenticated': False,
-                'message': 'You need to sign in to purchase items.'
+                "cart_items": [],
+                "total_price": 0,
+                "user_authenticated": False,
+                "message": "You need to sign in to purchase items.",
             }
 
         return self.render_to_response(context)
-
 
 
 @login_required
@@ -102,7 +114,9 @@ def pay_with_paypal(request):
     # Check if the user has confirmed their address
     if not user_profile.address_confirmed:
         # Redirect the user to the address confirmation view
-        return redirect('orders:confirm_address')  # Replace with the actual URL or URL name
+        return redirect(
+            "orders:confirm_address"
+        )  # Replace with the actual URL or URL name
 
     # Get the user's order and the associated cart items
     try:
@@ -114,7 +128,11 @@ def pay_with_paypal(request):
         total_price = 0
 
     # Render the PayPal payment view for the user
-    response = render(request, 'payment/pay_with_paypal.html', {'cart_items': cart_items, 'total_price': total_price})
+    response = render(
+        request,
+        "payment/pay_with_paypal.html",
+        {"cart_items": cart_items, "total_price": total_price},
+    )
 
     # Handle the PayPal payment (not shown in this example)
 
@@ -125,7 +143,6 @@ def pay_with_paypal(request):
     return response
 
 
-
 @login_required
 def confirm_address(request):
     # Check if the user has items in their cart
@@ -134,41 +151,42 @@ def confirm_address(request):
         cart_items = order.cartitem_set.all()
         if not cart_items:
             # Redirect the user to the cart if it's empty
-            return redirect('orders:cart_detail')  # Replace with the actual URL or URL name for the cart
+            return redirect(
+                "orders:cart_detail"
+            )  # Replace with the actual URL or URL name for the cart
     except Order.DoesNotExist:
         pass  # Handle the case where the order doesn't exist if needed
 
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserProfileForm(request.POST, instance=user_profile)
         if form.is_valid():
             user_profile = form.save(commit=False)
             user_profile.address_confirmed = True
             user_profile.save()
             # Redirect the user to the PayPal payment view
-            return redirect('orders:pay_with_paypal')  # Replace with the actual URL or URL name
+            return redirect(
+                "orders:pay_with_paypal"
+            )  # Replace with the actual URL or URL name
     else:
         form = UserProfileForm(instance=user_profile)
 
-    return render(request, 'confirm/confirm_address.html', {'form': form})
+    return render(request, "confirm/confirm_address.html", {"form": form})
 
 
-    
-
-@method_decorator(login_required, name='dispatch')
+@method_decorator(login_required, name="dispatch")
 class ClearCartView(View):
     def post(self, request, *args, **kwargs):
         # Get cart items
         cart_items = CartItem.objects.filter(order__user=request.user)
-        
+
         # Calculate total
         total = sum(item.subtotal for item in cart_items)
-        
+
         # Create OrderHistory
         order_history = OrderHistory.objects.create(
-            user=request.user, 
-            total_price=total
+            user=request.user, total_price=total
         )
 
         # Save items
@@ -177,59 +195,259 @@ class ClearCartView(View):
                 order_history=order_history,
                 product=item.product,
                 quantity=item.quantity,
-                subtotal=item.subtotal
+                subtotal=item.subtotal,
             )
 
-        # Clear cart 
+        # Clear cart
         CartItem.objects.filter(order__user=request.user).delete()
 
         # Redirect
-        return redirect('orders:payment_complete')
+        return redirect("orders:payment_complete")
 
 
-
-@method_decorator(login_required, name='dispatch')
+@method_decorator(login_required, name="dispatch")
 class PaymentCompleteView(TemplateView):
-    template_name = 'payment/payment_completed.html'
+    template_name = "payment/payment_completed.html"
 
     def get(self, request, *args, **kwargs):
-        # Check if the user has any recent orders
-        try:
-            order_history = OrderHistory.objects.filter(user=request.user).order_by('-id').first()
-            if not order_history:
-                # Redirect the user to a relevant page if there are no recent orders
-                return redirect('orders:cart_detail')  # Replace with the actual URL or URL name for the cart
-        except OrderHistory.DoesNotExist:
-            # Redirect the user to a relevant page if there are no recent orders
-            return redirect('orders:cart_detail')  # Replace with the actual URL or URL name for the cart
+        order_history = (
+            OrderHistory.objects.filter(user=request.user).order_by("-id").first()
+        )
+        if not order_history:
+            return redirect("orders:cart_detail")
 
-        # Get the order history items associated with this order
-        order_history_items = OrderHistoryItem.objects.filter(order_history=order_history)
-
-        # Check if there are any items in the order history
+        order_history_items = OrderHistoryItem.objects.filter(
+            order_history=order_history
+        )
         if not order_history_items:
-            # Redirect the user to a relevant page if there are no items in the order
-            return redirect('orders:cart_detail')  # Replace with the actual URL or URL name for the cart
+            return redirect("orders:cart_detail")
+
+        # Generate the QR code for the OrderHistory instance
+        order_history.generate_qr_code(request)
 
         context = {
-            'order_history': order_history,
-            'order_history_items': order_history_items
+            "order_history": order_history,
+            "order_history_items": order_history_items,
         }
 
         return self.render_to_response(context)
 
 
+def order_history_image(request, order_history_id):
+    order_history = get_object_or_404(OrderHistory, id=order_history_id)
+
+    # Create a new image with a white background and increased size
+    img = Image.new("RGB", (1200, 1500), color="white")  # Increased image size
+    d = ImageDraw.Draw(img)
+
+    # Load the font with an increased size
+    try:
+        font_size = 24  # Increased font size
+        font = ImageFont.truetype("arial.ttf", font_size)
+    except IOError:
+        font = ImageFont.load_default()
+
+    
+    phnom_penh_timezone = pytz.timezone('Asia/Phnom_Penh')
+    ordered_date_phnom_penh = timezone.localtime(order_history.ordered_date, timezone=phnom_penh_timezone)
+    ordered_date_formatted = ordered_date_phnom_penh.strftime("%I:%M %p")
+    
+    # Define the texts to be written on the image
+    texts = [
+        f"Order No: {order_history.id}",
+        f"Purchased by: {order_history.user.username}",
+        f"Ordered Date: {ordered_date_formatted}",
+    ]
+
+    # Collect order items information
+    order_history_items = OrderHistoryItem.objects.filter(order_history=order_history)
+
+    # Calculate y-position for the first text
+    y = 150  # Increased y position
+    line_height = 40  # Increased line height
+
+    # Draw each text centered on the image
+    for text in texts:
+        text_width, text_height = d.textbbox((0, 0), text, font=font)[2:4]
+        x = (img.width - text_width) // 2  # Center the text horizontally
+        d.text((x, y), text, font=font, fill="black")
+        y += line_height
+
+    table_headers = ["Product Name", "Model", "Year", "Images", "Qty", "Price"]
+
+    # Define the desired margin size
+    margin_size = 50
+
+    # Calculate cell width with added margin
+    cell_width = (img.width - (margin_size * 2)) // len(table_headers)
+
+    # Draw the table headers
+
+    table_y = y + 100  # Set the starting y-position for the table
+    row_height = 40  # Set the row height
+
+    # Draw horizontal line for the top of the table
+    d.line([(0, table_y), (img.width, table_y)], fill="black", width=2)
+
+    # Draw table headers
+    for i, header in enumerate(table_headers):
+        x = (
+            margin_size
+            + i * cell_width
+            + (cell_width - d.textbbox((0, 0), header, font=font)[2]) // 2
+        )
+        d.text((x, table_y), header, font=font, fill="black")
+
+    # Draw horizontal line for the bottom of the header row
+    d.line(
+        [(0, table_y + row_height), (img.width, table_y + row_height)],
+        fill="black",
+        width=2,
+    )
+
+    # Define the desired padding between rows
+    row_padding = 50
+    # Maintain the original row height
+    row_height = 90
+
+    # Draw table rows for each product
+    for row_index, item in enumerate(order_history_items, start=1):
+        row_y = table_y + (row_index * row_height) + (row_index - 1) * row_padding
+        x_offset = margin_size
+        # Draw product name, model, year
+        product_details = [
+            item.product.name,
+            item.product.model,
+            str(item.product.year),
+        ]
+        for col_index, text in enumerate(product_details):
+            x = (
+                margin_size
+                + col_index * cell_width
+                + (cell_width - d.textbbox((0, 0), text, font=font)[2]) // 2
+            )
+            d.text((x, row_y), text, font=font, fill="black")
+            x_offset += cell_width
+        # Draw product image
+        product_image_path = item.product.images.path
+        if product_image_path:
+            product_image = Image.open(product_image_path)
+            image_width, image_height = product_image.size
+            max_image_height = 1 * row_height  # Maintain the original max image height
+            max_image_width = 1 * cell_width  # Maintain the original max image width
+            # Maintain aspect ratio while resizing
+            if image_height > max_image_height or image_width > max_image_width:
+                ratio = min(
+                    max_image_width / image_width, max_image_height / image_height
+                )
+                new_width = int(image_width * ratio)
+                new_height = int(image_height * ratio)
+                product_image = product_image.resize(
+                    (new_width, new_height)
+                )  # Remove Image.ANTIALIAS
+            # Calculate x-coordinate to center the image within the "Images" column with added margin
+            x_img = (
+                margin_size + 3 * cell_width + (cell_width - product_image.width) // 2
+            )
+            # Adjust y-coordinate for the first row with image
+            if row_index == 1:
+                y_img = table_y + row_padding
+            else:
+                y_img = row_y + (row_height - product_image.height) // 2
+            # Create a mask for the image to preserve transparency
+            mask = product_image.split()[3] if len(product_image.split()) == 4 else None
+            img.paste(product_image, (x_img, y_img), mask=mask)
+            x_offset += cell_width
+        # Draw quantity and price
+        x_qty = (
+            margin_size
+            + 4 * cell_width
+            + (cell_width - d.textbbox((0, 0), str(item.quantity), font=font)[2]) // 2
+        )
+        d.text((x_qty, row_y), str(item.quantity), font=font, fill="black")
+        x_price = (
+            margin_size
+            + 5 * cell_width
+            + (cell_width - d.textbbox((0, 0), f"${item.subtotal:.2f}", font=font)[2])
+            // 2
+        )
+        d.text((x_price, row_y), f"${item.subtotal:.2f}", font=font, fill="black")
+
+        # Draw horizontal line to separate rows
+        if row_index < len(order_history_items):
+            d.line(
+                [(0, row_y + row_height), (img.width, row_y + row_height)],
+                fill="black",
+                width=1,
+            )
+        else:
+            d.line(
+                [
+                    (0, row_y + row_height + row_padding),
+                    (img.width, row_y + row_height + row_padding),
+                ],
+                fill="black",
+                width=1,
+            )
+
+    # Increase font size for total price
+    total_price_font_size = 36
+
+    # Load the font with the increased size for total price
+    try:
+        font = ImageFont.truetype("arial.ttf", font_size)
+        total_price_font = ImageFont.truetype("arial.ttf", total_price_font_size)
+    except IOError:
+        font = ImageFont.load_default()
+
+    # Convert the image to bytes and return it as a response
+    buffer = BytesIO()
+
+    # Calculate total price
+    total_price = sum(item.subtotal for item in order_history_items)
+    total_price_text = f"Total Price: ${total_price:.2f}"
+
+    # Calculate the position of the total price text at the bottom of the image with added margin
+    total_price_width, total_price_height = d.textbbox(
+        (0, 0), total_price_text, font=total_price_font
+    )[2:4]
+    total_price_x = (
+        margin_size + (img.width - (margin_size * 2) - total_price_width) // 2
+    )
+    total_price_y = (
+        img.height - total_price_height - 50
+    )  # Adjust the vertical position as needed
+
+    # Draw total price text with the increased font size
+    d.text(
+        (total_price_x, total_price_y),
+        total_price_text,
+        font=total_price_font,
+        fill="red",
+    )
+
+    # Save the image to the buffer
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    # Return the image as an HTTP response
+    response = HttpResponse(buffer.getvalue(), content_type="image/png")
+    return response
+
+
 class OrderHistoryView(LoginRequiredMixin, ListView):
-    template_name = 'order/order_history.html'
+    template_name = "order/order_history.html"
     model = OrderHistory
-    context_object_name = 'orders'
+    context_object_name = "orders"
 
     def get_queryset(self):
-        return OrderHistory.objects.filter(user=self.request.user).order_by('-ordered_date')
+        return OrderHistory.objects.filter(user=self.request.user).order_by(
+            "-ordered_date"
+        )
+
 
 class OrderDetailView(LoginRequiredMixin, DetailView):
-    template_name = 'order/order_detail.html'
+    template_name = "order/order_detail.html"
     model = OrderHistory  # Use the OrderHistory model
-    context_object_name = 'order'
-    pk_url_kwarg = 'order_id'
-
+    context_object_name = "order"
+    pk_url_kwarg = "order_id"

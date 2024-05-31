@@ -1,5 +1,12 @@
+from fileinput import filename
+from typing_extensions import Buffer
 from django.db import models
 from products.models import *
+from io import BytesIO
+from django.core.files import File
+from PIL import Image
+import qrcode
+from django.urls import reverse
 # Create your models here.
 
 class OrderStatus(models.TextChoices):
@@ -36,10 +43,34 @@ class OrderHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ordered_date = models.DateTimeField(default=timezone.now)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)  
+    status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)
+    qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)
 
     def __str__(self):
         return f"Order History #{self.id} - {self.ordered_date} - Total: ${self.total_price:.2f}"
+
+    def generate_qr_code(self, request):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        
+        # Construct the full URL with the request object
+        host = request.get_host()
+        qr_data = f'http://{host}{reverse("orders:order_history_image", args=[self.id])}'
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill='black', back_color='white')
+        buffer = BytesIO()
+        img.save(buffer, 'PNG')
+        buffer.seek(0)  # Ensure the pointer is at the start of the buffer
+
+        file_name = f'order_{self.id}_qr.png'
+        self.qr_code.save(file_name, File(buffer), save=True)
+
 
 
 class OrderHistoryItem(models.Model):
