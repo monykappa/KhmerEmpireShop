@@ -34,6 +34,10 @@
     <p>or sign in with google </p>
 </div>
 
+<div class="container">
+    <a href="{% url 'userprofile:signup' %}" class="btn btn-primary">Sign up</a>
+</div>
+
 <div class="container d-flex align-items-center justify-content-center mt-2">
     <div class="text-center">
         <a href="{% provider_login_url 'google' %}" class="btn btn-outline-secondary d-flex align-items-center px-4 py-2 login-with-google-btn">

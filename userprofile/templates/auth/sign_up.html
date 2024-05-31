@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load socialaccount %}
 {% load static %}
 
 
@@ -20,13 +21,17 @@
             </div>
             <div class="form-group">
                 <label for="username">Username:</label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
-                <div id="username-error" class="alert alert-danger" style="display: none;"></div> <!-- Error message for username -->
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username"
+                    required>
+                <div id="username-error" class="alert alert-danger" style="display: none;"></div>
+                <!-- Error message for username -->
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
-                <div id="email-error" class="alert alert-danger" style="display: none;"></div> <!-- Error message for email -->
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email"
+                    required>
+                <div id="email-error" class="alert alert-danger" style="display: none;"></div>
+                <!-- Error message for email -->
             </div>
             <div class="form-group pfp-form">
                 <label for="pfp">Profile Picture:</label>
@@ -50,45 +55,20 @@
             <p class="create-text">Have an account? just sign in!</p>
             <a href="{% url 'userprofile:sign_in' %}" class="btn btn-primary btn-sign-in">Sign in</a>
         </form>
+
+        <div class="container d-flex align-items-center justify-content-center mt-2">
+            <div class="text-center">
+                <a href="{% provider_login_url 'google' %}" class="btn btn-outline-secondary d-flex align-items-center px-4 py-2 login-with-google-btn">
+                    <img class="mr-2" src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20" alt="Google logo">
+                    <span>Login with Google</span>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
-
-<script>
-   // Function to check if username is available
-   function checkUsernameAvailability() {
-    const username = document.getElementById("username").value;
-    fetch("{% url 'userprofile:check_username_availability' %}?username=" + encodeURIComponent(username))
-        .then(response => response.json())
-        .then(data => {
-            const errorDiv = document.getElementById("username-error");
-            if (data.is_taken) {
-                errorDiv.textContent = data.message;
-                errorDiv.style.display = "block";
-            } else {
-                errorDiv.style.display = "none";
-            }
-        });
-}
-
-// Function to check if email is available
-function checkEmailAvailability() {
-    const email = document.getElementById("email").value;
-    fetch("{% url 'userprofile:check_email_availability' %}?email=" + encodeURIComponent(email))
-        .then(response => response.json())
-        .then(data => {
-            const errorDiv = document.getElementById("email-error");
-            if (data.is_taken) {
-                errorDiv.textContent = data.message;
-                errorDiv.style.display = "block";
-            } else {
-                errorDiv.style.display = "none";
-            }
-        });
-}
-
-document.getElementById("username").addEventListener("input", checkUsernameAvailability);
-document.getElementById("email").addEventListener("input", checkEmailAvailability);
-</script>
-
 {% endblock content %}
+
+{% block js %}
+<script src="{% static 'js/auth/signUp.js' %}"></script>
+{% endblock js %}
