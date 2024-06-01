@@ -8,13 +8,28 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import redirect
 from django.contrib.auth import logout
+from products.models import *
+from orders.models import *
+from datetime import date
 
 
 # Create your views here.
 
+
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
-    login_url = reverse_lazy('dashboard:sign_in') 
+    login_url = reverse_lazy('dashboard:sign_in')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_products'] = Product.objects.count()
+        context['total_orders'] = OrderHistory.objects.count()
+        context['total_users'] = User.objects.count()
+
+        # Retrieve the newest product
+        newest_product = Product.objects.latest('id')
+        context['newest_product_name'] = newest_product.name
+        return context
 
 class DashboardSignInView(LoginView):
     template_name = 'dashboard/sign_in.html'

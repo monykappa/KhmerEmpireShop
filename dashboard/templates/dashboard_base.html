@@ -16,9 +16,13 @@
   <link href="{% static 'css/bootstrap/nucleo-icons.css' %}" rel="stylesheet" />
   <link href="{% static 'css/bootstrap/nucleo-svg.css' %}" rel="stylesheet" />
   <link id="pagestyle" href="{% static 'css/bootstrap/material-dashboard.css' %}" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/bootstrap/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/sweetalert/all.min.css' %}">
   {% block css %}{% endblock css %}
 
   <!--   Core JS Files   -->
+  <script src="{% static 'js/bootstrap/jquery-3.6.0.min.js' %}"></script>
   <script src="{% static 'js/bootstrap/popper.min.js' %}"></script>
   <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
   <script src="{% static 'js/plugins/perfect-scrollbar.min.js' %}"></script>
@@ -62,17 +66,8 @@
 
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
       <ul class="navbar-nav">
-
-
-
-
-
-
-
-
-
         <li class="nav-item">
-          <a class="nav-link text-white " href="./dashboard.html">
+          <a class="nav-link text-white " href="{% url 'dashboard:dashboard' %}">
 
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa-solid fa-gauge"></i>
