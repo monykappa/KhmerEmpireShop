@@ -30,6 +30,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# Check if user logged-in, in order to add product to cart
+class CheckLoginStatusView(View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return JsonResponse({"logged_in": True})
+        else:
+            return JsonResponse({"logged_in": False})
+        
+        
 @method_decorator(login_required, name="dispatch")
 class AddToCartView(View):
     def post(self, request, slug):

@@ -27,7 +27,7 @@ DEBUG = True
 
 
 # Config the IP address of the server
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.90.16']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.7']
 
 
 

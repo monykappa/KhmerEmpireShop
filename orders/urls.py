@@ -11,6 +11,7 @@ from django.conf import settings
 app_name = 'orders'
 
 urlpatterns = [
+    path('check-login-status/', views.CheckLoginStatusView.as_view(), name='check_login_status'),
     path('add-to-cart/<slug:slug>/',views. AddToCartView.as_view(), name='add_to_cart'),
     path('cart/', views.CartDetailView.as_view(), name='cart_detail'),
     path('clear-cart/', views.ClearCartView.as_view(), name='clear_cart'),

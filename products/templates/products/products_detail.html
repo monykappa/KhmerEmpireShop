@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}
-    {{ laptop_spec.product.name }}
+{{ laptop_spec.product.name }}
 {% endblock title %}
 
 {% block content %}
@@ -8,3 +9,6 @@
     {% include 'products/laptop.html' %}
 </div>
 {% endblock content %}
+{% block js %}
+<script src="{% static 'js/carts/addToCart.js' %}"></script>
+{% endblock js %}
