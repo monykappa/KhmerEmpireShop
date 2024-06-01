@@ -79,11 +79,12 @@
 
     </div>
 </div>
-<div id="order-graph">
-    {{ plot_div | safe }}
-</div>
+
+{% include 'chart/order_chart.html' %}
 {% endblock content %}
 
 {% block js %}
-    
+<script src="{% static 'js/bootstrap/material-dashboard.min.js' %}"></script>
+
+
 {% endblock js %}

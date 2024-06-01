@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.utils.decorators import method_decorator
@@ -10,11 +11,10 @@ from django.shortcuts import redirect
 from django.contrib.auth import logout
 from products.models import *
 from orders.models import *
-from datetime import date
+from datetime import date, timedelta
 
 
 # Create your views here.
-
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
