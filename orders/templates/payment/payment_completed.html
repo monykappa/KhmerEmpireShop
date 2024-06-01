@@ -2,73 +2,22 @@
 
 {% block content %}
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
+    .StyledReceipt {
+        background: linear-gradient(45deg, #aaa, #fff);
+        width: 800px;
+        padding: 1rem 1rem 2rem;
+        --mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50%/30px 100%;
+        -webkit-mask: var(--mask);
+        mask: var(--mask);
     }
 
-    .sub-ctn {
-        box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-        margin: auto;
-        width: 50%;
-        padding: 5rem;
-        text-align: center;
-        line-height: 40px;
-        border-radius: 12px;
-    }
-
-    @media screen and (max-width: 768px) {
-        .sub-ctn {
-            width: 80%;
-            padding: 1rem;
-        }
-    }
-
-    @keyframes rotateLeftRight {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        25% {
-            transform: rotate(-20deg);
-        }
-
-        50% {
-            transform: rotate(0deg);
-        }
-
-        75% {
-            transform: rotate(20deg);
-        }
-
-        100% {
-            transform: rotate(0deg);
-        }
-    }
-
-    .rotate-animation {
-        animation: rotateLeftRight 5s linear infinite;
-        /* Adjust the duration and timing function as needed */
-    }
-
-    p.order-num {
-        color: red;
-    }
-
-    a.btn-ctn {
-        transition: 0.3s ease;
-        background-color: var(--fourth-color);
-        border: none;
-    }
-
-    a.btn-ctn:hover {
-        transform: scale(1.1);
-        background-color: var(--third-color);
-        border: 2px solid var(--fourth-color);
+    ul {
+        list-style-type: none;
     }
 </style>
 
-<div class="success-ctn">
-    <div class="sub-ctn">
+<div class="success-ctn StyledReceipt container text-center">
+    <div class="sub-ctn mt-2">
         <h1>Payment Successful!
             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="60" height="60" viewBox="0 0 48 48"
                 class="rotate-animation">
@@ -88,7 +37,8 @@
         <p>Products Purchased:</p>
         <ul>
             {% for item in order_history_items %}
-            <li>{{ item.product.name }} {{ item.product.model }} {{ item.product.year }} - Quantity: {{ item.quantity }} - ${{ item.subtotal }}USD</li>
+            <li>-{{ item.product.name }} {{ item.product.model }} {{ item.product.year }} - Quantity: {{ item.quantity }}
+                - ${{ item.subtotal }}USD</li>
             {% endfor %}
         </ul>
 
@@ -98,17 +48,19 @@
             <div class="row justify-content-center"> <!-- Center the content horizontally -->
                 <div class="col-md-6 text-center">
                     {% if order_history.qr_code %}
-                        <img src="{{ order_history.qr_code.url }}" alt="QR Code" width="200" class="img-fluid"> <!-- Center the image -->
+                    <img src="{{ order_history.qr_code.url }}" alt="QR Code" width="200" class="img-fluid">
+                    <!-- Center the image -->
                     {% endif %}
                 </div>
             </div>
             <div class="row justify-content-center"> <!-- Center the content horizontally -->
                 <div class="col-md-6 text-center"> <!-- Center the button -->
-                    <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-ctn">Continue Shopping</a>
+                    <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-ctn mt-4 mb-4">Continue
+                        Shopping</a>
                 </div>
             </div>
         </div>
-        
+
     </div>
 </div>
 
