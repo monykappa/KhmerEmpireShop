@@ -68,8 +68,10 @@ class OrderHistory(models.Model):
         img.save(buffer, 'PNG')
         buffer.seek(0)  # Ensure the pointer is at the start of the buffer
 
+        # Save the QR code image to the qr_code field
         file_name = f'order_{self.id}_qr.png'
         self.qr_code.save(file_name, File(buffer), save=True)
+
 
 
 

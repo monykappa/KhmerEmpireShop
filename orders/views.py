@@ -251,20 +251,25 @@ class PaymentCompleteView(TemplateView):
     template_name = "payment/payment_completed.html"
 
     def get(self, request, *args, **kwargs):
+        # Retrieve the latest order history for the current user
         order_history = (
             OrderHistory.objects.filter(user=request.user).order_by("-id").first()
         )
         if not order_history:
             return redirect("orders:cart_detail")
 
+        # Ensure that the QR code is generated only if it doesn't exist already
+        if not order_history.qr_code:
+            # Generate the QR code for the OrderHistory instance
+            order_history.generate_qr_code(request)
+
+        # Debugging: Print the QR code URL
+        print(order_history.qr_code.url)
+
+        # Retrieve order history items
         order_history_items = OrderHistoryItem.objects.filter(
             order_history=order_history
         )
-        if not order_history_items:
-            return redirect("orders:cart_detail")
-
-        # Generate the QR code for the OrderHistory instance
-        order_history.generate_qr_code(request)
 
         context = {
             "order_history": order_history,
