@@ -7,6 +7,8 @@ from django.core.files import File
 from PIL import Image
 import qrcode
 from django.urls import reverse
+from decimal import Decimal
+
 # Create your models here.
 
 class OrderStatus(models.TextChoices):
@@ -20,6 +22,14 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     # status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)
 
+    def calculate_total_price(self):
+        # Calculate total price based on cart items
+        total = Decimal(0)
+        for item in self.cartitem_set.all():
+            total += item.subtotal
+        self.total_price = total
+        self.save()
+        
     def __str__(self):
         return f"Order #{self.id} - Total: ${self.total_price:.2f}"
 

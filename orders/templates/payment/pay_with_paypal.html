@@ -26,8 +26,8 @@
     {% endif %}
 
 
-    {% if total_price|floatformat:"0" > "0" %}
-    <h3 class="text-danger">Grand total: ${{ total_price|floatformat:"0" }}</h3> 
+    {% if total_price > 0 %}
+    <h3 class="text-danger">Grand total: ${{ total_price }}</h3> 
     {% endif %}
 
     <div class="paypal-ctn container">

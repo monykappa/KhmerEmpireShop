@@ -18,3 +18,4 @@ class ProductDetailView(DetailView):
     context_object_name = 'laptop_spec'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+

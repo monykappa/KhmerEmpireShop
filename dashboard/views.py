@@ -22,6 +22,9 @@ from bokeh.plotting import figure
 from bokeh.embed import components
 from plotly.offline import plot
 import plotly.graph_objs as go
+from userprofile.models import *
+from .forms import *
+from django.views.generic.edit import CreateView
 
 
 
@@ -77,13 +80,69 @@ class OrderHistoryView(LoginRequiredMixin, SuperuserRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['status_filter'] = self.request.GET.get('status', OrderStatus.PENDING)
+        
+        # Add address data for each order
+        for order in context['order_histories']:
+            address = Address.objects.filter(user=order.user).first()
+            if address:
+                order.province = address.province
+            else:
+                order.province = 'N/A'
+                
         return context
+
 
 class OrderDetailView(LoginRequiredMixin, SuperuserRequiredMixin, DetailView):
     model = OrderHistory
     template_name = 'dashboard/order_detail.html'
     context_object_name = 'order'
     login_url = reverse_lazy('dashboard:sign_in')
-    
-    
-    
+
+
+class ProductListView(ListView, SuperuserRequiredMixin):
+    model = Product
+    template_name = 'dashboard/product_list.html'
+    context_object_name = 'products'
+    paginate_by = 10  # Adjust as needed
+
+    def get_queryset(self):
+        return Product.objects.all()
+
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'dashboard/add/add_new_product.html'
+    success_url = reverse_lazy('dashboard:product_list')
+
+    def form_valid(self, form):
+        # Save the Product instance first
+        product_instance = form.save(commit=False)
+        product_instance.save()
+
+        # Now create and associate the LaptopSpec instance
+        laptop_spec_instance = LaptopSpec.objects.create(
+            product=product_instance,
+            cpu=form.cleaned_data.get('cpu'),
+            memory=form.cleaned_data.get('memory'),
+            storage=form.cleaned_data.get('storage'),
+            display=form.cleaned_data.get('display'),
+            webcam=form.cleaned_data.get('webcam'),
+            battery=form.cleaned_data.get('battery'),
+            weight=form.cleaned_data.get('weight'),
+            operating_system=form.cleaned_data.get('operating_system')
+            # Add more fields as needed
+        )
+
+        # Add the associated GPU specs
+        gpu_specs = form.cleaned_data.get('gpu')
+        laptop_spec_instance.gpu.set(gpu_specs)
+
+        # Add the associated port specs
+        port_specs = form.cleaned_data.get('port')
+        laptop_spec_instance.port.set(port_specs)
+
+        # Add the associated wireless connectivity specs
+        wireless_connectivity_specs = form.cleaned_data.get('wireless_connectivity')
+        laptop_spec_instance.wireless_connectivity.set(wireless_connectivity_specs)
+
+        return super().form_valid(form)

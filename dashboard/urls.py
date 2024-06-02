@@ -18,6 +18,9 @@ urlpatterns = [
     
     
     path('dashboard/order/', views.OrderHistoryView.as_view(), name='order'),
+    
+    path('dashboard/products/', views.ProductListView.as_view(), name='product_list'),
+    path('dashboard/products/add/', views.ProductCreateView.as_view(), name='product_add'),
 
     path('dashboard/order/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
 ]

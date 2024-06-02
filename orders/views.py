@@ -21,6 +21,7 @@ from io import BytesIO
 from django.utils import timezone
 import pytz
 from django.urls import reverse_lazy
+from decimal import Decimal
 
 # Create your views here.
 
@@ -155,18 +156,17 @@ def pay_with_paypal(request):
     # Check if the user has confirmed their address
     if not user_profile.address_confirmed:
         # Redirect the user to the address confirmation view
-        return redirect(
-            "orders:confirm_address"
-        )  # Replace with the actual URL or URL name
+        return redirect("orders:confirm_address")
 
     # Get the user's order and the associated cart items
     try:
         order = Order.objects.get(user=request.user, created_at__isnull=False)
         cart_items = order.cartitem_set.all()
+        order.calculate_total_price()  # Recalculate total price
         total_price = order.total_price
     except Order.DoesNotExist:
         cart_items = []
-        total_price = 0
+        total_price = Decimal(0)
 
     # Render the PayPal payment view for the user
     response = render(
@@ -175,13 +175,12 @@ def pay_with_paypal(request):
         {"cart_items": cart_items, "total_price": total_price},
     )
 
-    # Handle the PayPal payment (not shown in this example)
-
     # Reset the address_confirmed attribute to False
     user_profile.address_confirmed = False
     user_profile.save()
 
     return response
+
 
 
 @login_required
