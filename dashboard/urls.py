@@ -15,6 +15,11 @@ urlpatterns = [
     path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
     path('dashboard/sign_in/', views.DashboardSignInView.as_view(), name='sign_in'),
     path('dashboard/logout/', views.DashboardLogoutView.as_view(), name='logout'),
+    
+    
+    path('dashboard/order/', views.OrderHistoryView.as_view(), name='order'),
+
+    path('dashboard/order/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
 ]
 
 if settings.DEBUG:

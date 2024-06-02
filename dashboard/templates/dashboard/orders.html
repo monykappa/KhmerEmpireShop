@@ -1,0 +1,78 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% block title %}
+Order
+{% endblock title %}
+
+{% block content %}
+
+
+
+<div class="container">
+    <h2>Order History</h2>
+    <div class="status-buttons">
+        <a href="{% url 'dashboard:order' %}?status=Pending"
+            class="btn {% if status_filter == 'Pending' %}btn-warning{% else %}btn-secondary{% endif %}">Pending</a>
+        <a href="{% url 'dashboard:order' %}?status=Completed"
+            class="btn {% if status_filter == 'Completed' %}btn-success{% else %}btn-secondary{% endif %}">Completed</a>
+        <a href="{% url 'dashboard:order' %}?status=Cancelled"
+            class="btn {% if status_filter == 'Cancelled' %}btn-danger{% else %}btn-secondary{% endif %}">Cancelled</a>
+    </div>
+
+</div>
+
+<!-- Order history table -->
+<table class="container">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Ordered Date</th>
+            <th>Total Price</th>
+            <th>Status</th>
+            <th>QR Code</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in order_histories %}
+        <tr class="clickable-row" data-href="{% url 'dashboard:order_detail' order.id %}">
+            <td>{{ order.id }}</td>
+            <td>{{ order.ordered_date }}</td>
+            <td>${{ order.total_price }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>
+                {% if order.qr_code %}
+                <img src="{{ order.qr_code.url }}" alt="QR Code" width="100" height="100">
+                {% else %}
+                N/A
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!-- Pagination controls -->
+{% if is_paginated %}
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; first</a>
+        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{% endif %}
+
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'js/dashboard/Order.js' %}"></script>
+{% endblock js %}

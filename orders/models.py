@@ -73,8 +73,6 @@ class OrderHistory(models.Model):
         self.qr_code.save(file_name, File(buffer), save=True)
 
 
-
-
 class OrderHistoryItem(models.Model):
     order_history = models.ForeignKey(OrderHistory, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

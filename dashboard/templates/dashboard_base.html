@@ -6,12 +6,16 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   {% block meta %}
-    
+
   {% endblock meta %}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Nucleo Icons -->
   <link href="{% static 'css/bootstrap/nucleo-icons.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/dashboard/dashboard_base.css' %}" rel="stylesheet" />
   <link href="{% static 'css/bootstrap/nucleo-svg.css' %}" rel="stylesheet" />
   <link id="pagestyle" href="{% static 'css/bootstrap/material-dashboard.css' %}" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'css/bootstrap/all.min.css' %}">
@@ -19,7 +23,7 @@
   <link rel="stylesheet" href="{% static 'css/sweetalert/all.min.css' %}">
   {% block css %}{% endblock css %}
 
-  
+
   <title>{% block title %}Base{% endblock %}</title>
 
   <!--   Core JS Files   -->
@@ -80,7 +84,7 @@
 
 
         <li class="nav-item">
-          <a class="nav-link text-white " href="./tables.html">
+          <a class="nav-link text-white " href="{% url 'dashboard:order' %}">
 
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa-solid fa-cart-shopping"></i>
@@ -193,8 +197,8 @@
     <div class="sidenav-footer position-absolute w-100 bottom-0 ">
       <div class="mx-3">
         <!-- Logout -->
-        <a class="btn bg-gradient-primary w-100"
-          href="{% url 'dashboard:logout' %}" type="button"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
+        <a class="btn bg-gradient-primary w-100" href="{% url 'dashboard:logout' %}" type="button"><i
+            class="fa-solid fa-right-from-bracket"></i>Logout</a>
       </div>
 
     </div>
@@ -209,11 +213,7 @@
       <div class="container-fluid py-1 px-3">
         <nav aria-label="breadcrumb">
 
-          <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">index</li>
-          </ol>
-          <h6 class="font-weight-bolder mb-0">index</h6>
+
 
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
@@ -489,4 +489,5 @@
   {% endblock js %}
 
 </body>
+
 </html>
