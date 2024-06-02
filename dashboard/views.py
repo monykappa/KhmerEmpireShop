@@ -24,7 +24,8 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 from userprofile.models import *
 from .forms import *
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.http import HttpResponseRedirect
 
 
 
@@ -103,10 +104,11 @@ class ProductListView(ListView, SuperuserRequiredMixin):
     model = Product
     template_name = 'dashboard/product_list.html'
     context_object_name = 'products'
-    paginate_by = 10  # Adjust as needed
+    paginate_by = 10
 
     def get_queryset(self):
         return Product.objects.all()
+
 
 class ProductCreateView(CreateView, SuperuserRequiredMixin):
     model = Product
@@ -114,35 +116,55 @@ class ProductCreateView(CreateView, SuperuserRequiredMixin):
     template_name = 'dashboard/add/add_new_product.html'
     success_url = reverse_lazy('dashboard:product_list')
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['laptopspec_formset'] = LaptopSpecFormSet(self.request.POST)
+        else:
+            data['laptopspec_formset'] = LaptopSpecFormSet()
+        return data
+
     def form_valid(self, form):
-        # Save the Product instance first
-        product_instance = form.save(commit=False)
-        product_instance.save()
+        context = self.get_context_data()
+        laptopspec_formset = context['laptopspec_formset']
+        if laptopspec_formset.is_valid():
+            product_instance = form.save()
+            laptopspec_formset.instance = product_instance
+            laptopspec_formset.save()
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
-        # Now create and associate the LaptopSpec instance
-        laptop_spec_instance = LaptopSpec.objects.create(
-            product=product_instance,
-            cpu=form.cleaned_data.get('cpu'),
-            memory=form.cleaned_data.get('memory'),
-            storage=form.cleaned_data.get('storage'),
-            display=form.cleaned_data.get('display'),
-            webcam=form.cleaned_data.get('webcam'),
-            battery=form.cleaned_data.get('battery'),
-            weight=form.cleaned_data.get('weight'),
-            operating_system=form.cleaned_data.get('operating_system')
-            # Add more fields as needed
-        )
+class ProductUpdateView(UpdateView, SuperuserRequiredMixin):
+    model = Product
+    form_class = ProductForm
+    template_name = 'dashboard/edit/edit_product.html'
+    success_url = reverse_lazy('dashboard:product_list')
 
-        # Add the associated GPU specs
-        gpu_specs = form.cleaned_data.get('gpu')
-        laptop_spec_instance.gpu.set(gpu_specs)
+    def get_context_data(self, **kwargs):
+        data = super(ProductUpdateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            data['laptopspec_formset'] = LaptopSpecFormSet(self.request.POST, instance=self.object)
+        else:
+            data['laptopspec_formset'] = LaptopSpecFormSet(instance=self.object)
+        return data
 
-        # Add the associated port specs
-        port_specs = form.cleaned_data.get('port')
-        laptop_spec_instance.port.set(port_specs)
+    def form_valid(self, form):
+        context = self.get_context_data()
+        laptopspec_formset = context['laptopspec_formset']
+        if laptopspec_formset.is_valid():
+            response = super().form_valid(form)
+            laptopspec_formset.instance = self.object
+            laptopspec_formset.save()
+            return response
+        else:
+            return self.form_invalid(form)
 
-        # Add the associated wireless connectivity specs
-        wireless_connectivity_specs = form.cleaned_data.get('wireless_connectivity')
-        laptop_spec_instance.wireless_connectivity.set(wireless_connectivity_specs)
+class ProductDeleteView(DeleteView, SuperuserRequiredMixin):
+    model = Product
+    success_url = reverse_lazy('dashboard:product_list')
 
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return HttpResponseRedirect(self.success_url)

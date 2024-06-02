@@ -5,7 +5,6 @@
     <h2>Product List</h2>
 <a href="{% url 'dashboard:product_add' %}" class="btn btn-primary">Add New Product</a>
 </div>
-
 <table class="container">    
     <thead>
         <tr>
@@ -17,6 +16,7 @@
             <th>Price</th>
             <th>Year</th>
             <th>Warranty</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -38,10 +38,18 @@
                     {{ product.warranty_months }} month{% if product.warranty_months > 1 %}s{% endif %}
                 {% endif %}
             </td>
+            <td>
+                <a href="{% url 'dashboard:product_edit' product.id %}" class="btn btn-primary btn-sm">Edit</a>
+                <form method="post" action="{% url 'dashboard:product_delete' product.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
 
 
 <div class="pagination">
