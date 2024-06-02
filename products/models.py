@@ -58,8 +58,6 @@ class Product(SlugMixin):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=True, blank=True, related_name='products')
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    images = models.FileField(upload_to=product_directory_path, validators=[validate_file_extension], blank=True, null=True)
-    additional_images = models.FileField(upload_to=product_directory_path, validators=[validate_file_extension], blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True)  # Foreign key to the Color model
     year = models.CharField(max_length=4, choices=[(str(year), str(year)) for year in range(2015, 2056)], null=True, blank=True)
@@ -72,6 +70,13 @@ class Product(SlugMixin):
 
     def __str__(self):
         return f"{self.name} - ${self.price:.2f} - {self.year}"
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    image = models.FileField(upload_to=product_directory_path, validators=[validate_file_extension])
+
+    def __str__(self):
+        return f"Image for {self.product.name}"
 
 
 # class HeadphoneSpec(models.Model):

@@ -49,7 +49,15 @@ Cart
             {% for item in cart_items %}
             <tr id="cart-item-{{ item.id }}">
                 <td>{{ item.product.name }} {{ item.product.model }} {{ item.product.year }}</td>
-                <td><img src="{{ item.product.images.url }}" alt="{{ laptop_spec.product.name }}" width="120"></td>
+                <td>
+                    {% if item.product.images.all %}
+                    {% with first_image=item.product.images.first %}
+                    <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
+                    {% endwith %}
+                    {% else %}
+                   <p>no image</p>
+                    {% endif %}
+                </td>
                 <td>
                     <div class="quantity-control">
                         <input type="number" class="quantity-input" data-item-id="{{ item.id }}"
@@ -58,7 +66,6 @@ Cart
                             data-url="{% url 'orders:update_cart_quantity' item.id %}">-</button>
                         <button class="btn btn-secondary increase-btn" data-item-id="{{ item.id }}"
                             data-url="{% url 'orders:update_cart_quantity' item.id %}">+</button>
-
                     </div>
                 </td>
                 <td id="subtotal-{{ item.id }}">${{ item.subtotal }}</td>
@@ -78,6 +85,7 @@ Cart
             </tr>
             {% endif %}
         </tbody>
+        
     </table>
     {% if cart_items %}
     <h3 class="text-danger">Total: $<span id="total-price">{{ total_price }}</span></h3>

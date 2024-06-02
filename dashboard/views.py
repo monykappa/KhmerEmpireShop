@@ -108,7 +108,7 @@ class ProductListView(ListView, SuperuserRequiredMixin):
     def get_queryset(self):
         return Product.objects.all()
 
-class ProductCreateView(CreateView):
+class ProductCreateView(CreateView, SuperuserRequiredMixin):
     model = Product
     form_class = ProductForm
     template_name = 'dashboard/add/add_new_product.html'

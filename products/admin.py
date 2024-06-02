@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import *
 
-class LaptopSpecInline(admin.StackedInline):
+class LaptopSpecInLine(admin.StackedInline):
     model = LaptopSpec
     fields = ('cpu', 'memory', 'storage', 'gpu', 'display', 'port', 'wireless_connectivity', 'webcam', 'battery', 'weight', 'operating_system')
     can_delete = False
@@ -11,12 +11,23 @@ class LaptopSpecInline(admin.StackedInline):
 #     fields = ('driver_size', 'frequency_response', 'impedance', 'noise_cancellation', 'connector_type', 'weight', 'battery_life', 'additional_features')
 #     can_delete = False
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1  # Number of additional image slots to show by default
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     inlines = [
-        LaptopSpecInline,
-        # HeadphoneSpecInline,
+        ProductImageInline,
+        LaptopSpecInLine,
+        # Add other inlines here if needed
     ]
+
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'model', 'brand', 'description', 'price', 'category', 'color', 'year', 'warranty_months', 'warranty_years')
+        }),
+    )
 
 admin.site.register(Category)
 admin.site.register(Brand)

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}
 Order Detail - {{ order.id }}
 {% endblock title %}
@@ -44,7 +45,13 @@ Order Detail - {{ order.id }}
         <tbody>
             {% for item in order.orderhistoryitem_set.all %}
             <tr>
-                <td><img src="{{ item.product.images.url }}" alt="{{ item.product.name }}" width="120" /></td>
+                <td>  {% if item.product.images.all %}
+                    {% with first_image=item.product.images.first %}
+                    <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
+                    {% endwith %}
+                    {% else %}
+                   <p>no image</p>
+                    {% endif %}</td>
                 <td>{{ item.product.name }}</td>
                 <td>{{ item.product.model }}</td>
                 <td>{{ item.product.year }}</td>

@@ -76,6 +76,7 @@ class AddToCartView(View):
     def get(self, request, slug):
         return JsonResponse({"message": "Invalid request method"}, status=400)
 
+from django.db.models import Prefetch 
 
 class CartDetailView(TemplateView):
     template_name = "cart/cart_auth.html"
@@ -85,10 +86,10 @@ class CartDetailView(TemplateView):
         if self.request.user.is_authenticated:
             try:
                 order = Order.objects.get(user=self.request.user, created_at__isnull=False)
-                cart_items = order.cartitem_set.all()
+                cart_items = order.cartitem_set.all().prefetch_related(
+                    Prefetch('product__images', queryset=ProductImage.objects.all())
+                )
                 total_price = order.total_price
-
-                # Check if the user has provided an address
                 user_has_address = (
                     hasattr(self.request.user, "userprofile")
                     and self.request.user.userprofile.address1 is not None
@@ -102,7 +103,7 @@ class CartDetailView(TemplateView):
                 "cart_items": cart_items,
                 "total_price": total_price,
                 "user_authenticated": True,
-                "user_has_address": user_has_address,  # Pass this variable to the template
+                "user_has_address": user_has_address,
             })
         else:
             context.update({
@@ -112,6 +113,7 @@ class CartDetailView(TemplateView):
                 "message": "You need to sign in to purchase items.",
             })
         return context
+
 
 class RemoveFromCartView(DeleteView):
     model = CartItem
@@ -356,9 +358,8 @@ class OrderHistoryImageView(View):
         ]
 
         # Collect order items information
-        order_history_items = OrderHistoryItem.objects.filter(
-            order_history=order_history
-        )
+        order_history_items = OrderHistoryItem.objects.filter(order_history=order_history).select_related('product').prefetch_related('product__images')
+
 
         # Calculate y-position for the first text
         y = 150  # Increased y position
@@ -371,7 +372,7 @@ class OrderHistoryImageView(View):
             d.text((x, y), text, font=font, fill="black")
             y += line_height
 
-        table_headers = ["Product Name", "Model", "Year", "Images", "Qty", "Price"]
+        table_headers = ["Product Name", "Model", "Year", "Qty", "Price"]
 
         # Define the desired margin size
         margin_size = 50
@@ -426,57 +427,17 @@ class OrderHistoryImageView(View):
                 )
                 d.text((x, row_y), text, font=font, fill="black")
                 x_offset += cell_width
-            # Draw product image
-            product_image_path = item.product.images.path
-            if product_image_path:
-                product_image = Image.open(product_image_path)
-                image_width, image_height = product_image.size
-                max_image_height = (
-                    1 * row_height
-                )  # Maintain the original max image height
-                max_image_width = (
-                    1 * cell_width
-                )  # Maintain the original max image width
-                # Maintain aspect ratio while resizing
-                if image_height > max_image_height or image_width > max_image_width:
-                    ratio = min(
-                        max_image_width / image_width, max_image_height / image_height
-                    )
-                    new_width = int(image_width * ratio)
-                    new_height = int(image_height * ratio)
-                    product_image = product_image.resize(
-                        (new_width, new_height)
-                    )  # Remove Image.ANTIALIAS
-                # Calculate x-coordinate to center the image within the "Images" column with added margin
-                x_img = (
-                    margin_size
-                    + 3 * cell_width
-                    + (cell_width - product_image.width) // 2
-                )
-                # Adjust y-coordinate for the first row with image
-                if row_index == 1:
-                    y_img = table_y + row_padding
-                else:
-                    y_img = row_y + (row_height - product_image.height) // 2
-                # Create a mask for the image to preserve transparency
-                mask = (
-                    product_image.split()[3]
-                    if len(product_image.split()) == 4
-                    else None
-                )
-                img.paste(product_image, (x_img, y_img), mask=mask)
-                x_offset += cell_width
             # Draw quantity and price
             x_qty = (
                 margin_size
-                + 4 * cell_width
+                + 3 * cell_width
                 + (cell_width - d.textbbox((0, 0), str(item.quantity), font=font)[2])
                 // 2
             )
             d.text((x_qty, row_y), str(item.quantity), font=font, fill="black")
             x_price = (
                 margin_size
-                + 5 * cell_width
+                + 4 * cell_width
                 + (
                     cell_width
                     - d.textbbox((0, 0), f"${item.subtotal:.2f}", font=font)[2]

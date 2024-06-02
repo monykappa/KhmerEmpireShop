@@ -1,9 +1,12 @@
 {% extends "dashboard_base.html" %}
 
 {% block content %}
-<h2>Product List</h2>
+<div class="container">
+    <h2>Product List</h2>
 <a href="{% url 'dashboard:product_add' %}" class="btn btn-primary">Add New Product</a>
-<table class="container">
+</div>
+
+<table class="container">    
     <thead>
         <tr>
             <th>Product Name</th>
@@ -13,8 +16,7 @@
             <th>Color</th>
             <th>Price</th>
             <th>Year</th>
-            <th>Warranty (Months)</th>
-            <th>Warranty (Years)</th>
+            <th>Warranty</th>
         </tr>
     </thead>
     <tbody>
@@ -27,12 +29,20 @@
             <td>{{ product.color.name }}</td>
             <td>${{ product.price }}</td>
             <td>{{ product.year }}</td>
-            <td>{{ product.warranty_months }}</td>
-            <td>{{ product.warranty_years }}</td>
+            <td>
+                {% if product.warranty_years %}
+                    {{ product.warranty_years }} year{% if product.warranty_years > 1 %}s{% endif %}
+                {% endif %}
+                {% if product.warranty_months %}
+                    {% if product.warranty_years %} and {% endif %}
+                    {{ product.warranty_months }} month{% if product.warranty_months > 1 %}s{% endif %}
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
 
 <div class="pagination">
     <span class="step-links">
