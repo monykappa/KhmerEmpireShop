@@ -20,7 +20,7 @@ Order
     </div>
 
 </div>
-
+<!-- Order history table -->
 <!-- Order history table -->
 <table class="container">
     <thead>
@@ -31,6 +31,9 @@ Order
             <th>From</th>
             <th>Status</th>
             <th>QR Code</th>
+            {% if order_histories and order_histories.0.status == "Pending" %}
+                <th>Action</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -43,13 +46,28 @@ Order
             <td>{{ order.get_status_display }}</td>
             <td>
                 {% if order.qr_code %}
-                <img src="{{ order.qr_code.url }}" alt="QR Code" width="200" class="img-fluid">
+                <img src="{{ order.qr_code.url }}" alt="QR Code" width="60" class="img-fluid">
                 {% endif %}
             </td>
+            {% if order.status == "Pending" %}
+                <td>
+                    <form method="post" action="{% url 'dashboard:order_status_update' order.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="Completed">
+                        <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
+                    </form>
+                    <form method="post" action="{% url 'dashboard:order_status_update' order.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="Cancelled">
+                        <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-x"></i></button>
+                    </form>
+                </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
 
 <!-- Pagination controls -->
 <div class="container mt-3">

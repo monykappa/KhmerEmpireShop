@@ -23,3 +23,7 @@ table.container th {
     background-color: #f1f1f1; /* Change background color on hover */
 }
 
+
+i{
+    font-size: 14px !important;
+}

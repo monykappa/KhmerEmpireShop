@@ -1,6 +1,5 @@
 import json
-
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.views.generic import TemplateView
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -24,8 +23,9 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 from userprofile.models import *
 from .forms import *
+from django.contrib import messages
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 
 
 
@@ -91,6 +91,17 @@ class OrderHistoryView(LoginRequiredMixin, SuperuserRequiredMixin, ListView):
                 order.province = 'N/A'
                 
         return context
+
+class OrderStatusUpdateView(LoginRequiredMixin, SuperuserRequiredMixin, View):
+    def post(self, request, pk):
+        order_history = get_object_or_404(OrderHistory, pk=pk)
+        new_status = request.POST.get('status')
+        if new_status in [OrderStatus.COMPLETED, OrderStatus.CANCELLED]:
+            order_history.update_status(new_status)
+            messages.success(request, f'Order {order_history.id} has been updated to {new_status}')
+        else:
+            messages.error(request, 'Invalid status')
+        return redirect('dashboard:order')
 
 
 class OrderDetailView(LoginRequiredMixin, SuperuserRequiredMixin, DetailView):
@@ -171,3 +182,81 @@ class ProductDeleteView(DeleteView, SuperuserRequiredMixin):
         self.object = self.get_object()
         self.object.delete()
         return HttpResponseRedirect(self.success_url)
+
+class DisplayTablesView(TemplateView):
+    template_name = 'dashboard/table/tables.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get instances of all models except LaptopSpec and Product
+        context['categories'] = Category.objects.all()
+        context['brands'] = Brand.objects.all()
+        context['colors'] = Color.objects.all()
+        context['cpu_brands'] = CpuBrand.objects.all()
+        context['gpu_brands'] = GpuBrand.objects.all()
+        context['cpu_specs'] = CpuSpec.objects.all()
+        context['gpu_specs'] = GpuSpec.objects.all()
+        context['memory_brands'] = MemoryBrand.objects.all()
+        context['memory_specs'] = MemorySpec.objects.all()
+        context['storage_brands'] = StorageBrand.objects.all()
+        context['storage_specs'] = StorageSpec.objects.all()
+        context['display_specs'] = DisplaySpec.objects.all()
+        context['port_specs'] = PortSpec.objects.all()
+        context['wireless_connectivities'] = WirelessConnectivity.objects.all()
+        context['webcam_specs'] = WebcamSpec.objects.all()
+        context['battery_specs'] = BatterySpec.objects.all()
+        context['operating_systems'] = OperatingSystem.objects.all()
+        return context
+
+
+class EditModelView(UpdateView):
+    template_name = 'dashboard/edit/edit_model.html'
+    model = None
+    fields = '__all__'
+    success_url = reverse_lazy('dashboard:display_tables')
+
+    def get_object(self, queryset=None):
+        model_name = self.kwargs.get('model')
+        if model_name == 'category':
+            self.model = Category
+        elif model_name == 'brand':
+            self.model = Brand
+        elif model_name == 'color':
+            self.model = Color
+        elif model_name == 'cpu_brand':
+            self.model = CpuBrand
+        elif model_name == 'gpu_brand':
+            self.model = GpuBrand
+        elif model_name == 'cpu_spec':
+            self.model = CpuSpec
+        elif model_name == 'gpu_spec':
+            self.model = GpuSpec
+        elif model_name == 'memory_brand':
+            self.model = MemoryBrand
+        elif model_name == 'memory_spec':
+            self.model = MemorySpec
+        elif model_name == 'storage_brand':
+            self.model = StorageBrand
+        elif model_name == 'storage_spec':
+            self.model = StorageSpec
+        elif model_name == 'display_spec':
+            self.model = DisplaySpec
+        elif model_name == 'port_spec':
+            self.model = PortSpec
+        elif model_name == 'wireless_connectivity':
+            self.model = WirelessConnectivity
+        elif model_name == 'webcam_spec':
+            self.model = WebcamSpec
+        elif model_name == 'battery_spec':
+            self.model = BatterySpec
+        elif model_name == 'operating_system':
+            self.model = OperatingSystem
+        return super().get_object(queryset)
+
+    def get_form_class(self):
+        form_class = super().get_form_class()
+        if hasattr(self.model, 'slug'):
+            fields = form_class.Meta.fields
+            fields = [field for field in fields if field != 'slug']
+            form_class.Meta.fields = fields
+        return form_class

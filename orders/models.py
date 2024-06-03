@@ -59,6 +59,11 @@ class OrderHistory(models.Model):
     def __str__(self):
         return f"Order History #{self.id} - {self.ordered_date} - Total: ${self.total_price:.2f}"
 
+    def update_status(self, new_status):
+        if new_status in [OrderStatus.COMPLETED, OrderStatus.CANCELLED]:
+            self.status = new_status
+            self.save()
+            
     def generate_qr_code(self, request):
         qr = qrcode.QRCode(
             version=1,

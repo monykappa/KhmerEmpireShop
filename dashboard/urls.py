@@ -18,6 +18,8 @@ urlpatterns = [
     
     
     path('dashboard/order/', views.OrderHistoryView.as_view(), name='order'),
+    path('dashboard/order/<int:pk>/update_status/', views.OrderStatusUpdateView.as_view(), name='order_status_update'),
+
     
     path('dashboard/products/', views.ProductListView.as_view(), name='product_list'),
     path('dashboard/products/add/', views.ProductCreateView.as_view(), name='product_add'),
@@ -26,6 +28,9 @@ urlpatterns = [
     # path('delete-product-image/<int:image_id>/', views.DeleteProductImageView.as_view(), name='delete_product_image'),
     
     path('dashboard/order/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
+    
+    path('dashboard/tables/', views.DisplayTablesView.as_view(), name='display_tables'),
+    path('dashboard/edit/<str:model>/<int:pk>/', views.EditModelView.as_view(), name='edit_model'),
 ]
 
 if settings.DEBUG:
