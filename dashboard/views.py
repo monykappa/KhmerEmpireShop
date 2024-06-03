@@ -147,6 +147,7 @@ class ProductUpdateView(UpdateView, SuperuserRequiredMixin):
             data['laptopspec_formset'] = LaptopSpecFormSet(self.request.POST, instance=self.object)
         else:
             data['laptopspec_formset'] = LaptopSpecFormSet(instance=self.object)
+        data['product'] = self.object  # Ensure the product instance is added to context
         return data
 
     def form_valid(self, form):
@@ -159,6 +160,8 @@ class ProductUpdateView(UpdateView, SuperuserRequiredMixin):
             return response
         else:
             return self.form_invalid(form)
+
+
 
 class ProductDeleteView(DeleteView, SuperuserRequiredMixin):
     model = Product

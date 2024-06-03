@@ -55,5 +55,5 @@ class ProductForm(forms.ModelForm):
         return instance
 
 LaptopSpecFormSet = inlineformset_factory(
-    Product, LaptopSpec, form=LaptopSpecForm, extra=0, can_delete=False
+    Product, LaptopSpec, form=LaptopSpecForm, extra=1, can_delete=False
 )

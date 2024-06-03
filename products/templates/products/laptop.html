@@ -60,6 +60,7 @@
         {% endfor %}
         <h3>{{ laptop_spec.product.year }}</h3>
         <p>Brand: {{ laptop_spec.product.brand }}</p>
+        <h1 class="text-danger">${{ laptop_spec.product.price }}</h1>
         <form id="add-to-cart-form" action="{% url 'orders:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
             {% csrf_token %}
             <div class="form-group">
