@@ -8,14 +8,13 @@ from django.shortcuts import render
 from . import views
 from django.conf import settings
 
-app_name = 'products'
 
 urlpatterns = [
-    path('products/', views.ProductListView.as_view(), name='product_list'),
-    path('products/<slug:slug>/', views.ProductDetailView.as_view(), name='product_detail'),
+    path('api/products/', views.LaptopSpecListAPI.as_view(), name='products-api'),
+    path('api/products/<slug:slug>/', views.ProductDetailBySlugAPI.as_view(), name='product-detail-api'),
+
     
-
-
+    
 ]
 
 if settings.DEBUG:

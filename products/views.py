@@ -3,6 +3,9 @@ from .models import *
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
+from rest_framework import generics
+from .serializers import *
+
 
 
 
@@ -12,6 +15,8 @@ class ProductListView(ListView):
     template_name = 'products/products.html'
     context_object_name = 'laptop_specs'
 
+
+    
 class ProductDetailView(DetailView):
     model = LaptopSpec
     template_name = 'products/products_detail.html'

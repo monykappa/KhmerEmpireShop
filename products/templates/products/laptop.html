@@ -1,75 +1,69 @@
-<div class="row">
-    <div class="col-md-4">
+<div class="row" id="laptop-spec-container"></div>
 
-        <!-- Main image of the product -->
-        {% with first_image=laptop_spec.product.images.first %}
-        <img src="{{ first_image.image.url }}" alt="{{ laptop_spec.product.name }}" class="img-fluid big-image">
-        {% endwith %}
-        {% for image in laptop_spec.product.images.all %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('laptop-spec-container');
+        const productSlug = '<slug>'; // Replace with the actual product slug
+        const url = `/api/products/${productSlug}/`;
 
-        <!-- The rest images of the products
-        {% if not forloop.first %} <!-- Render only if it's not the first image -->
-        <img src="{{ image.image.url }}" alt="{{ laptop_spec.product.name }}" class="img-fluid small-image"​​ width="100">
-        {% endif %}
-        {% endfor %}
-        <div>
-            <h3>Specification</h3>
-
-            <p><strong>CPU:</strong> {{ laptop_spec.cpu.cpu_brand }} {{ laptop_spec.cpu.model }} - {{ laptop_spec.cpu.cores }}
-                cores - {{ laptop_spec.cpu.threads }} threads - {{ laptop_spec.cpu.cpu_detail }}</p>
-            <p><strong>Memory:</strong> {{ laptop_spec.memory.capacity }}GB {{ laptop_spec.memory.type }} - {{ laptop_spec.memory.speed }}MHz - {{ laptop_spec.memory.memory_brand.name }}</p>
-            <p><strong>Storage:</strong> {{ laptop_spec.storage.capacity }} {{ laptop_spec.storage.capacity_type }} - 
-                {{ laptop_spec.storage.interface }} - Read Speed: {{ laptop_spec.storage.read_speed }} MB/s - Write Speed:
-                {{ laptop_spec.storage.write_speed }} MB/s - {{ laptop_spec.storage.form_factor }} - {{ laptop_spec.storage.storage_brand.name }}</p>
-            <p><strong>GPU:</strong>
-                {% for gpu in laptop_spec.gpu.all %}
-                {{ gpu.gpu_brand.name }} {{ gpu.model }} - {{ gpu.vram }} GB VRAM - {{ gpu.vram_type }}<br>
-                {% empty %}
-                No GPU details available<br>
-                {% endfor %}
-            </p>
-            <p><strong>Display:</strong> {{ laptop_spec.display.display }} inches - {{ laptop_spec.display.display_detail }}</p>
-            <p><strong>Ports:</strong>
-                {% for port in laptop_spec.port.all %}
-                {{ port.port }}<br>
-                {% empty %}
-                No port details available<br>
-                {% endfor %}
-            </p>
-            <p><strong>Wireless Connectivity:</strong>
-                {% for wireless in laptop_spec.wireless_connectivity.all %}
-                {{ wireless.wireless_connectivity }} <br>
-                {% empty %}
-                No wireless connectivity details available<br>
-                {% endfor %}
-            </p>
-            <p><strong>Webcam:</strong> {{ laptop_spec.webcam.webcam }} </p>
-            <p><strong>Battery:</strong> {{ laptop_spec.battery.battery }} Kw</p>
-            <p><strong>Operating System:</strong> {{ laptop_spec.operating_system.operating_system }} </p>
-            <p><strong>Weight:</strong> {{ laptop_spec.weight }} kg</p>
-        </div>
-    </div>
-    <div class="col-md-8">
-
-        {% for gpu in laptop_spec.gpu.all %}
-        <h3>{{ laptop_spec.product.name }} {{ laptop_spec.product.model }} ({{ laptop_spec.cpu.cpu_brand }} /
-            {{ laptop_spec.cpu.model }} {{ gpu.model }} / {{ laptop_spec.memory.capacity }}GB /
-            {{ laptop_spec.storage.capacity }} {{ laptop_spec.storage.capacity_type }} /
-            {{ laptop_spec.display.display }} inches
-            )</h3>
-        {% endfor %}
-        <h3>{{ laptop_spec.product.year }}</h3>
-        <p>Brand: {{ laptop_spec.product.brand }}</p>
-        <h1 class="text-danger">${{ laptop_spec.product.price }}</h1>
-        <form id="add-to-cart-form" action="{% url 'orders:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="quantity">Quantity:</label>
-                <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Add to Cart</button>
-        </form>
-
-        <p id="cart-message"></p>
-    </div>
-</div>
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error fetching laptop specs for product ${productSlug}: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Render laptop specs into the container element
+                container.innerHTML = `
+                    <div class="col-md-4">
+                        <img src="${data.product.images[0].image.url}" alt="${data.product.name}" class="img-fluid big-image">
+                        ${data.product.images.slice(1).map(image => `
+                            <img src="${image.image.url}" alt="${data.product.name}" class="img-fluid small-image" width="100">
+                        `).join('')}
+                        <div>
+                            <h3>Specification</h3>
+                            <p><strong>CPU:</strong> ${data.cpu.cpu_brand} ${data.cpu.model} - ${data.cpu.cores} cores - ${data.cpu.threads} threads - ${data.cpu.cpu_detail}</p>
+                            <p><strong>Memory:</strong> ${data.memory.capacity}GB ${data.memory.type} - ${data.memory.speed}MHz - ${data.memory.memory_brand.name}</p>
+                            <p><strong>Storage:</strong> ${data.storage.capacity} ${data.storage.capacity_type} - ${data.storage.interface} - Read Speed: ${data.storage.read_speed} MB/s - Write Speed: ${data.storage.write_speed} MB/s - ${data.storage.form_factor} - ${data.storage.storage_brand.name}</p>
+                            <p><strong>GPU:</strong>
+                                ${data.gpu.length ? data.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model} - ${gpu.vram} GB VRAM - ${gpu.vram_type}<br>`).join('') : 'No GPU details available<br>'}
+                            </p>
+                            <p><strong>Display:</strong> ${data.display.display} inches - ${data.display.display_detail}</p>
+                            <p><strong>Ports:</strong>
+                                ${data.port.length ? data.port.map(port => `${port.port}<br>`).join('') : 'No port details available<br>'}
+                            </p>
+                            <p><strong>Wireless Connectivity:</strong>
+                                ${data.wireless_connectivity.length ? data.wireless_connectivity.map(wireless => `${wireless.wireless_connectivity}<br>`).join('') : 'No wireless connectivity details available<br>'}
+                            </p>
+                            <p><strong>Webcam:</strong> ${data.webcam.webcam}</p>
+                            <p><strong>Battery:</strong> ${data.battery.battery} Kw</p>
+                            <p><strong>Operating System:</strong> ${data.operating_system.operating_system}</p>
+                            <p><strong>Weight:</strong> ${data.weight} kg</p>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        ${data.gpu.map(gpu => `
+                            <h3>${data.product.name} ${data.product.model} (${data.cpu.cpu_brand} / ${data.cpu.model} ${gpu.model} / ${data.memory.capacity}GB / ${data.storage.capacity} ${data.storage.capacity_type} / ${data.display.display} inches)</h3>
+                        `).join('')}
+                        <h3>${data.product.year}</h3>
+                        <p>Brand: ${data.product.brand}</p>
+                        <h1 class="text-danger">$${data.product.price}</h1>
+                        <form id="add-to-cart-form" action="/orders/add_to_cart/${data.product.slug}" method="post">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="${data.csrf_token}">
+                            <div class="form-group">
+                                <label for="quantity">Quantity:</label>
+                                <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add to Cart</button>
+                        </form>
+                        <p id="cart-message"></p>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error(error);
+                container.innerHTML = `<p>Failed to load laptop specifications for product ${productSlug}. Error ${error.message}</p>`;
+            });
+    });
+</script>
