@@ -1,3 +1,5 @@
+
+
 document.addEventListener('DOMContentLoaded', function () {
     fetch('/api/products/')
         .then(response => response.json())
@@ -26,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Only create "See More" button if 'slug' is not null or undefined
                 let seeMoreButton = '';
-                if (productSlug !== null && productSlug !== undefined) {
+                if (productSlug) {
                     seeMoreButton = `<a href="/products/${productSlug}" class="btn btn-primary">See More</a>`;
                 }
 
@@ -44,3 +46,5 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => console.error('Error fetching data:', error));
 });
+
+

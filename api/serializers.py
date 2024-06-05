@@ -69,7 +69,7 @@ class OperatingSystemSerializer(serializers.ModelSerializer):
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
-        fields = ['image']
+        fields = ['id', 'product', 'image']
 
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True)

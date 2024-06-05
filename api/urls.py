@@ -12,6 +12,10 @@ from django.conf import settings
 urlpatterns = [
     path('api/products/', views.LaptopSpecListAPI.as_view(), name='products-api'),
     path('api/products/<slug:slug>/', views.ProductDetailBySlugAPI.as_view(), name='product-detail-api'),
+    
+
+
+
 
     
     
